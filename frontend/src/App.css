@@ -40,3 +40,9 @@
 .read-the-docs {
   color: #888;
 }
+
+.app-header {
+  font-size: 2rem;
+  color: #004e92;
+  margin: 20px 0;
+}

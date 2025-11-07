@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import API, { setAuthToken } from "../api";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "../css/login.css";
-import ErrorBox from "./ErrorBox";
+import ErrorBox from "../components/ErrorBox";
 
 export default function login({ setUser }) {
   const [form, setForm] = useState({ username: "", password: "" });

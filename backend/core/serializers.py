@@ -41,10 +41,14 @@ class AdminCreateUserSerializer(serializers.ModelSerializer):
                 })
         
         # Validate staff-specific fields
-        if user_type in ['professor', 'ta', 'admin_staff']:
+        if user_type in ['professor', 'ta', 'staff']:
             if not attrs.get('employee_id'):
                 raise serializers.ValidationError({
                     'employee_id': 'Employee ID is required for staff accounts.'
+                })
+            if not attrs.get('hire_date'):
+                raise serializers.ValidationError({
+                    'hire_date': 'Hire date is required for staff accounts.'
                 })
             if not attrs.get('department'):
                 raise serializers.ValidationError({

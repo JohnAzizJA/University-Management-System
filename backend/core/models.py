@@ -14,11 +14,13 @@ class User(AbstractUser):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
         ('student', 'Student'),
+        ('professor', 'Professor'),
+        ('ta', 'Teaching Assistant'),
         ('staff', 'Staff'),
         ('parent', 'Parent'),
     ]
 
-    user_type = models.CharField(max_length=20, choices=ROLE_CHOICES, default='STUDENT')
+    user_type = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     

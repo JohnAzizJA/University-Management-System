@@ -68,7 +68,17 @@ const AppRoutes = () => {
       <Route
         path="/staff/dashboard"
         element={
-          <ProtectedRoute allowedUserTypes={['professor', 'ta', 'admin_staff']}>
+          <ProtectedRoute allowedUserTypes={['staff', 'professor', 'ta']}>
+            <StaffDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Parent routes */}
+      <Route
+        path="/parent/dashboard"
+        element={
+          <ProtectedRoute allowedUserTypes={['parent']}>
             <StaffDashboard />
           </ProtectedRoute>
         }

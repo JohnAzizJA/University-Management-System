@@ -42,13 +42,16 @@ const Login = () => {
       case 'student':
         navigate('/student/dashboard');
         break;
+      case 'staff':
       case 'professor':
       case 'ta':
-      case 'admin_staff':
         navigate('/staff/dashboard');
         break;
+      case 'parent':
+        navigate('/parent/dashboard');
+        break;
       default:
-        navigate('/dashboard');
+        navigate('/login');
     }
   };
 

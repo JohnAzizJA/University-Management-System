@@ -55,7 +55,7 @@ const CreateUser = () => {
       }
 
       // Add staff-specific fields
-      if (['professor', 'ta', 'admin_staff'].includes(formData.user_type)) {
+      if (['professor', 'ta', 'staff'].includes(formData.user_type)) {
         dataToSend.employee_id = formData.employee_id;
         dataToSend.department = formData.department;
         dataToSend.hire_date = formData.hire_date;
@@ -99,7 +99,7 @@ const CreateUser = () => {
   };
 
   const isStudent = formData.user_type === 'student';
-  const isStaff = ['professor', 'ta', 'admin_staff'].includes(formData.user_type);
+  const isStaff = ['professor', 'ta', 'staff'].includes(formData.user_type);
 
   return (
     <div className="create-user-container">
@@ -140,7 +140,7 @@ const CreateUser = () => {
             <option value="student">Student</option>
             <option value="professor">Professor</option>
             <option value="ta">Teaching Assistant</option>
-            <option value="admin_staff">Administrative Staff</option>
+            <option value="staff">Staff</option>
             <option value="parent">Parent</option>
           </select>
         </div>
@@ -205,13 +205,14 @@ const CreateUser = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="phone_number">Phone Number</label>
+          <label htmlFor="phone_number">Phone Number *</label>
           <input
             id="phone_number"
             type="tel"
             name="phone_number"
             value={formData.phone_number}
             onChange={handleChange}
+            required
             disabled={loading}
             placeholder="+1234567890"
           />

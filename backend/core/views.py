@@ -27,7 +27,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'email': self.user.email,
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,
-            'role': self.user.role,
+            'user_type': self.user.user_type,
             'is_first_login': self.user.is_first_login,
         }
         
@@ -65,9 +65,9 @@ class UserListView(generics.ListAPIView):
     
     def get_queryset(self):
         queryset = User.objects.all()
-        role = self.request.query_params.get('role', None)
-        if role:
-            queryset = queryset.filter(role=role)
+        user_type = self.request.query_params.get('user_type', None)
+        if user_type:
+            queryset = queryset.filter(user_type=user_type)
         return queryset
     
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):

@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'username', 'email', 'first_name', 'last_name', 
-            'role', 'phone_number', 'student_id', 'employee_id',
+            'user_type', 'phone_number', 'student_id', 'employee_id',
             'department', 'enrollment_year', 'hire_date', 'is_first_login'
         )
         read_only_fields = ('id', 'is_first_login')
@@ -22,15 +22,15 @@ class AdminCreateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'username', 'email', 'password', 'first_name', 'last_name',
-            'role', 'phone_number', 'student_id', 'employee_id',
+            'user_type', 'phone_number', 'student_id', 'employee_id',
             'department', 'enrollment_year', 'hire_date'
         )
         
     def validate(self, attrs):
-        role = attrs.get('role')
+        user_type = attrs.get('user_type')
         
         # Validate student-specific fields
-        if role == 'student':
+        if user_type == 'student':
             if not attrs.get('student_id'):
                 raise serializers.ValidationError({
                     'student_id': 'Student ID is required for student accounts.'
@@ -41,7 +41,7 @@ class AdminCreateUserSerializer(serializers.ModelSerializer):
                 })
         
         # Validate staff-specific fields
-        if role in ['professor', 'ta', 'admin_staff']:
+        if user_type in ['professor', 'ta', 'admin_staff']:
             if not attrs.get('employee_id'):
                 raise serializers.ValidationError({
                     'employee_id': 'Employee ID is required for staff accounts.'

@@ -12,10 +12,10 @@ class Department(models.Model):
     
 class User(AbstractUser):
     ROLE_CHOICES = [
-        ('ADMIN', 'Admin'),
-        ('STUDENT', 'Student'),
-        ('STAFF', 'Staff'),
-        ('PARENT', 'Parent'),
+        ('admin', 'Admin'),
+        ('student', 'Student'),
+        ('staff', 'Staff'),
+        ('parent', 'Parent'),
     ]
 
     user_type = models.CharField(max_length=20, choices=ROLE_CHOICES, default='STUDENT')

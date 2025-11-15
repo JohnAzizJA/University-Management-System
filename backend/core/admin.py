@@ -12,7 +12,7 @@ class UserAdmin(BaseUserAdmin):
         ('User Type', {'fields': ('user_type',)}),
         ('Student Info', {'fields': ('student_id', 'enrollment_year')}),
         ('Staff Info', {'fields': ('employee_id', 'department', 'hire_date')}),
-        ('Additional Info', {'fields': ('phone_number', 'profile_picture', 'is_first_login', 'password_changed_at')}),
+        ('Additional Info', {'fields': ('phone_number', 'is_first_login', 'password_changed_at')}),
     )
     
     add_fieldsets = BaseUserAdmin.add_fieldsets + (

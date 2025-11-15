@@ -1,60 +1,101 @@
-# backend/core/serializers.py
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.utils import timezone
 
 User = get_user_model()
 
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-    password2 = serializers.CharField(write_only=True, required=True)
-    # allow client to include role and optional department when registering
-    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, required=False, default='STUDENT')
-    department_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password', 'password2', 'role', 'department_id')
-        extra_kwargs = {'email': {'required': True}}
-
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
-        return attrs
-
-    def create(self, validated_data):
-        # Remove fields not on the User model and handle password
-        dept_id = validated_data.pop('department_id', None)
-        role = validated_data.pop('role', None)
-        validated_data.pop('password2', None)
-        password = validated_data.pop('password')
-        user = User(**validated_data)
-        if role:
-            user.role = role
-        if dept_id:
-            try:
-                from .models import Department
-                user.department = Department.objects.get(id=dept_id)
-            except Exception:
-                # ignore invalid department, leave null
-                pass
-        user.set_password(password)
-        user.save()
-        return user
-
-class DepartmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User._meta.get_field('department').related_model
-        fields = ('id', 'name', 'code')
-
-
 class UserSerializer(serializers.ModelSerializer):
-    department = DepartmentSerializer(read_only=True)
-
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'role', 'department', 'phone', 'address')
-
+        fields = (
+            'id', 'username', 'email', 'first_name', 'last_name', 
+            'role', 'phone_number', 'student_id', 'employee_id',
+            'department', 'enrollment_year', 'hire_date', 'is_first_login'
+        )
+        read_only_fields = ('id', 'is_first_login')
+        
+class AdminCreateUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False)
+    
+    class Meta:
+        model = User
+        fields = (
+            'username', 'email', 'password', 'first_name', 'last_name',
+            'role', 'phone_number', 'student_id', 'employee_id',
+            'department', 'enrollment_year', 'hire_date'
+        )
+        
+    def validate(self, attrs):
+        role = attrs.get('role')
+        
+        # Validate student-specific fields
+        if role == 'student':
+            if not attrs.get('student_id'):
+                raise serializers.ValidationError({
+                    'student_id': 'Student ID is required for student accounts.'
+                })
+            if not attrs.get('enrollment_year'):
+                raise serializers.ValidationError({
+                    'enrollment_year': 'Enrollment year is required for student accounts.'
+                })
+        
+        # Validate staff-specific fields
+        if role in ['professor', 'ta', 'admin_staff']:
+            if not attrs.get('employee_id'):
+                raise serializers.ValidationError({
+                    'employee_id': 'Employee ID is required for staff accounts.'
+                })
+            if not attrs.get('department'):
+                raise serializers.ValidationError({
+                    'department': 'Department is required for staff accounts.'
+                })
+        
+        return attrs
+    
+    def create(self, validated_data):
+        # Generate default password if not provided
+        password = validated_data.pop('password', None)
+        if not password:
+            # Default password: username + "123"
+            password = f"{validated_data['username']}123"
+        
+        user = User.objects.create_user(
+            password=password,
+            is_first_login=True,
+            **validated_data
+        )
+        
+        return user
+    
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True, validators=[validate_password])
+    old_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(
+        required=True, 
+        write_only=True,
+        validators=[validate_password]
+    )
+    new_password_confirm = serializers.CharField(required=True, write_only=True)
+    
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['new_password_confirm']:
+            raise serializers.ValidationError({
+                'new_password_confirm': 'Passwords do not match.'
+            })
+        return attrs
+    
+class FirstLoginPasswordChangeSerializer(serializers.Serializer):
+    """Used when user logs in for the first time"""
+    new_password = serializers.CharField(
+        required=True,
+        write_only=True,
+        validators=[validate_password]
+    )
+    new_password_confirm = serializers.CharField(required=True, write_only=True)
+    
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['new_password_confirm']:
+            raise serializers.ValidationError({
+                'new_password_confirm': 'Passwords do not match.'
+            })
+        return attrs

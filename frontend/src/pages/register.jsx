@@ -2,7 +2,7 @@ import { useState } from "react";
 import API, { setAuthToken } from "../api";
 import { useNavigate } from "react-router-dom";
 import "../css/register.css";
-import ErrorBox from "./ErrorBox";
+import ErrorBox from "../components/ErrorBox";
 
 export default function register({ setUser }) {
   const [form, setForm] = useState({
